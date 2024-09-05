@@ -92,6 +92,7 @@ class ForminatorState extends State<Forminator> {
 class TextForminatorField extends StatefulWidget {
   /// {@macro forminator_text_field}
   const TextForminatorField({
+    this.textCapitalization = TextCapitalization.none,
     super.key,
     this.validator,
     this.focusNode,
@@ -154,6 +155,7 @@ class TextForminatorField extends StatefulWidget {
     this.canRequestFocus = true,
     this.showErrors = true,
     this.onError,
+    this.textInputAction,
   });
 
   /// A function to validate the input text.
@@ -341,6 +343,12 @@ class TextForminatorField extends StatefulWidget {
   /// Callback function triggered when an error occurs.
   final ValueChanged<bool>? onError;
 
+  /// The capitalization of the text field.
+  final TextCapitalization textCapitalization;
+
+  /// The text alignment of the text field.
+  final TextInputAction? textInputAction;
+
   @override
   State<TextForminatorField> createState() => TextForminatorFieldState();
 }
@@ -471,6 +479,8 @@ class TextForminatorFieldState extends State<TextForminatorField> {
       clipBehavior: widget.clipBehavior,
       scribbleEnabled: widget.scribbleEnabled,
       canRequestFocus: widget.canRequestFocus,
+      textCapitalization: widget.textCapitalization,
+      textInputAction: widget.textInputAction,
       onChanged: (value) {
         widget.onChanged?.call(value);
         _handleOnChanged(value);
