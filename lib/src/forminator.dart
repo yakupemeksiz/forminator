@@ -359,6 +359,9 @@ class TextForminatorField extends StatefulWidget {
 /// It also provides methods to validate the field and notify the form when the field changes.
 /// {@endtemplate}
 class TextForminatorFieldState extends State<TextForminatorField> {
+  /// The current state of the Forminator widget.
+  ForminatorState? _forminatorState;
+
   /// Indicates whether the field currently has an error.
   bool _isError = false;
 
@@ -420,7 +423,8 @@ class TextForminatorFieldState extends State<TextForminatorField> {
 
   @override
   Widget build(BuildContext context) {
-    ForminatorState.maybeOf(context)?._register(this);
+    _forminatorState = ForminatorState.maybeOf(context);
+    _forminatorState?._register(this);
     return TextFormField(
       forceErrorText: _showError ? _errorText : null,
       focusNode: _focusNode,
@@ -494,7 +498,7 @@ class TextForminatorFieldState extends State<TextForminatorField> {
 
   /// Handles the onChanged event of the text field.
   void _handleOnChanged(String value) {
-    ForminatorState.maybeOf(context)?._fieldDidChange();
+    _forminatorState?._fieldDidChange();
     if (_isChanged) {
       return;
     }
@@ -531,28 +535,50 @@ class TextForminatorFieldState extends State<TextForminatorField> {
   }
 
   @override
-  void dispose() {
-    if (widget.focusNode == null) {
-      _focusNode.dispose();
-    }
-    if (widget.controller == null) {
-      _controller.dispose();
-    }
-    _focusNode.removeListener(_handleFocusChange);
-    ForminatorState.maybeOf(context)?._unregister(this);
-    super.dispose();
-  }
-
-  @override
   void didUpdateWidget(TextForminatorField oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    // When the controller changes, remove the listener from the old controller and add it to the new one.
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller?.removeListener(_validate);
       widget.controller?.addListener(_validate);
     }
+
+    // When the focusNode changes, remove the listener from the old focusNode and add it to the new one.
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(_handleFocusChange);
       widget.focusNode?.addListener(_handleFocusChange);
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Safely get a reference to the ForminatorState and register this field in it.
+    _forminatorState = ForminatorState.maybeOf(context);
+    _forminatorState?._register(this);
+  }
+
+  @override
+  void dispose() {
+    // If the widget is using a locally created focusNode, dispose of it to free up resources.
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
+
+    // If the widget is using a locally created controller, dispose of it to free up resources.
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+
+    // Remove the focus change listener to avoid memory leaks after the widget is destroyed.
+    _focusNode.removeListener(_handleFocusChange);
+
+    // Unregister this field from the ForminatorState when the widget is disposed.
+    _forminatorState?._unregister(this);
+
+    // Call the parent dispose method to ensure any additional cleanup is handled.
+    super.dispose();
   }
 }
