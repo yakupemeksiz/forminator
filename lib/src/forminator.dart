@@ -426,7 +426,7 @@ class TextForminatorFieldState extends State<TextForminatorField> {
     _forminatorState = ForminatorState.maybeOf(context);
     _forminatorState?._register(this);
     return TextFormField(
-      forceErrorText: _showError ? _errorText : null,
+      forceErrorText: _showErrorText ? _errorText : null,
       focusNode: _focusNode,
       controller: _controller,
       keyboardType: widget.keyboardType,
@@ -506,6 +506,8 @@ class TextForminatorFieldState extends State<TextForminatorField> {
       _isChanged = value.trim().isNotEmpty;
     });
   }
+
+  bool get _showErrorText => widget.showErrors && _showError;
 
   /// Validates the field using the provided validator function.
   ///
