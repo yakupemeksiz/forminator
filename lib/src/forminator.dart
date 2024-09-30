@@ -385,7 +385,7 @@ class TextForminatorFieldState extends State<TextForminatorField> {
   /// by comparing the current value with `_initialText`.
   ///
   /// Note: Since it's marked as `late`, it must be assigned before it is accessed.
-  late final String? _initialText;
+  late final String _initialText;
 
   /// Tracks whether the initial value of the field has changed.
   ///
