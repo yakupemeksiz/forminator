@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:forminator/forminator.dart';
 
@@ -44,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 children: [
                   TextForminatorField(
+                    controller: TextEditingController(text: 'test'),
                     decoration: const InputDecoration(
                       labelText: 'Email',
                     ),
@@ -66,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ElevatedButton(
                     onPressed: () {
                       final isValid = formKey.currentState?.isValid();
+                      log('isValid: ${formKey.currentState?.isChanged}');
                       if (isValid ?? false) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Form is valid')),

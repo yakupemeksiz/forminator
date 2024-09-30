@@ -56,6 +56,11 @@ class ForminatorState extends State<Forminator> {
     });
   }
 
+  /// This method resets all the fields in the form to their initial state.
+  bool get isChanged {
+    return _fields.any((field) => field._isInitialValueChanged);
+  }
+
   /// Registers a [TextForminatorFieldState] with the form.
   void _register(TextForminatorFieldState field) {
     _fields.add(field);
@@ -366,6 +371,12 @@ class TextForminatorFieldState extends State<TextForminatorField> {
   /// The current state of the Forminator widget.
   ForminatorState? _forminatorState;
 
+  /// The copy state of the Forminator widget.
+  late final String? _initialValue;
+
+  /// Initial value of the field.
+  bool _isInitialValueChanged = false;
+
   /// Indicates whether the field currently has an error.
   bool _isError = false;
 
@@ -423,6 +434,7 @@ class TextForminatorFieldState extends State<TextForminatorField> {
     _controller = widget.controller ?? TextEditingController();
 
     _focusNode.addListener(_handleFocusChange);
+    _initialValue = _controller.text;
   }
 
   @override
@@ -508,15 +520,39 @@ class TextForminatorFieldState extends State<TextForminatorField> {
   /// Handles the onChanged event of the text field.
   void handleOnChanged(String value) {
     _forminatorState?.fieldDidChange();
+
+    _checkInitialValueStatus();
+
     if (_isChanged) {
       return;
     }
+
     setState(() {
       _isChanged = true;
     });
   }
 
-  bool get _showErrorText => widget.showErrors && _showError;
+  void _checkInitialValueStatus() {
+    if (_forminatorState != null) {
+      for (final field in _forminatorState!._fields) {
+        if (field._controller.hashCode == _controller.hashCode) {
+          if (field._initialValue != _controller.text) {
+            _emitInitialValueChangeStatus(true);
+          }
+
+          if (field._initialValue == _controller.text) {
+            _emitInitialValueChangeStatus(false);
+          }
+        }
+      }
+    }
+  }
+
+  void _emitInitialValueChangeStatus(bool status) {
+    setState(() {
+      _isInitialValueChanged = status;
+    });
+  }
 
   /// Validates the field using the provided validator function.
   ///
