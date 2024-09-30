@@ -82,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ElevatedButton(
                     onPressed: () {
                       final isInitialTextChanged =
-                          formKey.currentState?.isInitialTextChanged;
+                          formKey.currentState?.isAnyInitialTextChanged;
                       if (isInitialTextChanged ?? false) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Form is changed')),
