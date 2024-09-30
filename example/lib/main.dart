@@ -44,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 children: [
                   TextForminatorField(
+                    controller: TextEditingController(text: 'test'),
                     decoration: const InputDecoration(
                       labelText: 'Email',
                     ),
@@ -77,6 +78,22 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     },
                     child: const Text('Submit'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final isInitialTextChanged =
+                          formKey.currentState?.isAnyInitialTextChanged;
+                      if (isInitialTextChanged ?? false) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Form is changed')),
+                        );
+                        return;
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Form is not changed')),
+                      );
+                    },
+                    child: const Text('Handle Changes'),
                   ),
                 ],
               ),
