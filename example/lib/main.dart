@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:forminator/forminator.dart';
 
@@ -69,7 +67,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ElevatedButton(
                     onPressed: () {
                       final isValid = formKey.currentState?.isValid();
-                      log('isValid: ${formKey.currentState?.isChanged}');
                       if (isValid ?? false) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Form is valid')),
@@ -81,6 +78,22 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     },
                     child: const Text('Submit'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final isInitialTextChanged =
+                          formKey.currentState?.isInitialTextChanged;
+                      if (isInitialTextChanged ?? false) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Form is changed')),
+                        );
+                        return;
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Form is not changed')),
+                      );
+                    },
+                    child: const Text('Handle Changes'),
                   ),
                 ],
               ),

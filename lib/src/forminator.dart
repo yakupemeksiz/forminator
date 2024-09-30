@@ -56,9 +56,15 @@ class ForminatorState extends State<Forminator> {
     });
   }
 
-  /// This method resets all the fields in the form to their initial state.
-  bool get isChanged {
-    return _fields.any((field) => field._isInitialValueChanged);
+  /// Checks if any field in the `_fields` list has changed from its initial value.
+  ///
+  /// This getter iterates over the `_fields` list and returns `true` if at least
+  /// one field has its `_isInitialTextChanged` flag set to `true`, indicating
+  /// that the field's value has been modified since its initial state.
+  ///
+  /// Returns `true` if any field has changed, otherwise returns `false`.
+  bool get isInitialTextChanged {
+    return _fields.any((field) => field._isInitialTextChanged);
   }
 
   /// Registers a [TextForminatorFieldState] with the form.
@@ -371,11 +377,24 @@ class TextForminatorFieldState extends State<TextForminatorField> {
   /// The current state of the Forminator widget.
   ForminatorState? _forminatorState;
 
-  /// The copy state of the Forminator widget.
-  late final String? _initialValue;
+  /// Stores the initial value of the field, if available.
+  ///
+  /// This `late final` variable is intended to hold the initial value of the field.
+  /// It is only initialized once and cannot be changed afterward. The value can be `null`
+  /// if no initial value is provided. This might be used to track changes in the field
+  /// by comparing the current value with `_initialText`.
+  ///
+  /// Note: Since it's marked as `late`, it must be assigned before it is accessed.
+  late final String? _initialText;
 
-  /// Initial value of the field.
-  bool _isInitialValueChanged = false;
+  /// Tracks whether the initial value of the field has changed.
+  ///
+  /// This boolean variable is used to determine if the value of the field has been modified
+  /// from its original (initial) state. It starts as `false`, meaning no change has occurred.
+  /// If the current value differs from the initial value, this flag should be set to `true`.
+  ///
+  /// This is useful for detecting unsaved changes or triggering updates when the user modifies the field.
+  bool _isInitialTextChanged = false;
 
   /// Indicates whether the field currently has an error.
   bool _isError = false;
@@ -434,7 +453,7 @@ class TextForminatorFieldState extends State<TextForminatorField> {
     _controller = widget.controller ?? TextEditingController();
 
     _focusNode.addListener(_handleFocusChange);
-    _initialValue = _controller.text;
+    _initialText = _controller.text;
   }
 
   @override
@@ -521,7 +540,7 @@ class TextForminatorFieldState extends State<TextForminatorField> {
   void handleOnChanged(String value) {
     _forminatorState?.fieldDidChange();
 
-    _checkInitialValueStatus();
+    _updateInitialTextValue();
 
     if (_isChanged) {
       return;
@@ -532,25 +551,34 @@ class TextForminatorFieldState extends State<TextForminatorField> {
     });
   }
 
-  void _checkInitialValueStatus() {
+  /// Checks if the current value of the field has changed from its initial value.
+  /// If the value has changed, it emits a status update indicating the change.
+  ///
+  /// This function compares the initial value of the field with the current value in the controller.
+  /// If they are different, it triggers a status change to `true`, otherwise `false`.
+  void _updateInitialTextValue() {
     if (_forminatorState != null) {
       for (final field in _forminatorState!._fields) {
         if (field._controller.hashCode == _controller.hashCode) {
-          if (field._initialValue != _controller.text) {
-            _emitInitialValueChangeStatus(true);
+          if (field._initialText != _controller.text) {
+            _emitInitialTextValueStatus(true);
           }
 
-          if (field._initialValue == _controller.text) {
-            _emitInitialValueChangeStatus(false);
+          if (field._initialText == _controller.text) {
+            _emitInitialTextValueStatus(false);
           }
         }
       }
     }
   }
 
-  void _emitInitialValueChangeStatus(bool status) {
+  /// Updates the internal state to reflect whether the initial value of the field has changed.
+  /// The provided [status] determines if the value is considered changed (true) or unchanged (false).
+  ///
+  /// This method triggers a state change to update the UI based on the value change status.
+  void _emitInitialTextValueStatus(bool status) {
     setState(() {
-      _isInitialValueChanged = status;
+      _isInitialTextChanged = status;
     });
   }
 
