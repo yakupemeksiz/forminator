@@ -63,7 +63,7 @@ class ForminatorState extends State<Forminator> {
   /// that the field's value has been modified since its initial state.
   ///
   /// Returns `true` if any field has changed, otherwise returns `false`.
-  bool get isInitialTextChanged {
+  bool get isAnyInitialTextChanged {
     return _fields.any((field) => field._isInitialTextChanged);
   }
 
@@ -453,7 +453,7 @@ class TextForminatorFieldState extends State<TextForminatorField> {
     _controller = widget.controller ?? TextEditingController();
 
     _focusNode.addListener(_handleFocusChange);
-    _initialText = _controller.text;
+    _initialText = widget.initialValue ?? _controller.text;
   }
 
   @override
