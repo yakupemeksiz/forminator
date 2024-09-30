@@ -71,7 +71,7 @@ class ForminatorState extends State<Forminator> {
   }
 
   /// Notifies the form that a field has changed.
-  void _fieldDidChange() {
+  void fieldDidChange() {
     widget.onChanged?.call();
   }
 
@@ -156,6 +156,7 @@ class TextForminatorField extends StatefulWidget {
     this.showErrors = true,
     this.onError,
     this.textInputAction,
+    this.initialValue,
   });
 
   /// A function to validate the input text.
@@ -341,13 +342,16 @@ class TextForminatorField extends StatefulWidget {
   final bool showErrors;
 
   /// Callback function triggered when an error occurs.
-  final ValueChanged<bool>? onError;
+  final ValueChanged<String?>? onError;
 
   /// The capitalization of the text field.
   final TextCapitalization textCapitalization;
 
   /// The text alignment of the text field.
   final TextInputAction? textInputAction;
+
+  /// The initial value of the text field.
+  final String? initialValue;
 
   @override
   State<TextForminatorField> createState() => TextForminatorFieldState();
@@ -426,8 +430,13 @@ class TextForminatorFieldState extends State<TextForminatorField> {
     _forminatorState = ForminatorState.maybeOf(context);
     _forminatorState?._register(this);
     return TextFormField(
-      forceErrorText: _showErrorText ? _errorText : null,
+      forceErrorText: widget.showErrors
+          ? _showError
+              ? _errorText
+              : null
+          : null,
       focusNode: _focusNode,
+      initialValue: widget.initialValue,
       controller: _controller,
       keyboardType: widget.keyboardType,
       obscureText: widget.obscureText,
@@ -487,7 +496,7 @@ class TextForminatorFieldState extends State<TextForminatorField> {
       textInputAction: widget.textInputAction,
       onChanged: (value) {
         widget.onChanged?.call(value);
-        _handleOnChanged(value);
+        handleOnChanged(value);
       },
       onTapOutside: (event) {
         widget.onTapOutside?.call(event);
@@ -497,13 +506,13 @@ class TextForminatorFieldState extends State<TextForminatorField> {
   }
 
   /// Handles the onChanged event of the text field.
-  void _handleOnChanged(String value) {
-    _forminatorState?._fieldDidChange();
+  void handleOnChanged(String value) {
+    _forminatorState?.fieldDidChange();
     if (_isChanged) {
       return;
     }
     setState(() {
-      _isChanged = value.trim().isNotEmpty;
+      _isChanged = true;
     });
   }
 
@@ -531,8 +540,12 @@ class TextForminatorFieldState extends State<TextForminatorField> {
           _isFocused = false;
           _isChanged = true;
         });
+        widget.onError?.call(error);
       }
-      widget.onError?.call(_isError);
+
+      if (!_focusNode.hasFocus && _isChanged) {
+        widget.onError?.call(error);
+      }
     }
   }
 
